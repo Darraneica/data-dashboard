@@ -9,32 +9,21 @@ app = Flask(__name__)
 # Load the dataset
 df = pd.read_csv('healthcare_dataset.csv')
 
-# Ensure Billing Amount column is numeric
-df['Billing Amount'] = df['Billing Amount'].str.replace('$', '', regex=False).astype(float)
+# Ensure the 'Billing Amount' column is treated as strings and remove dollar signs, then convert to float
+if df['Billing Amount'].dtype != 'float64':  # Check if it's already numeric
+    df['Billing Amount'] = df['Billing Amount'].astype(str)  # Ensure it's treated as strings
+    df['Billing Amount'] = df['Billing Amount'].str.replace('$', '', regex=False)  # Remove '$'
+    df['Billing Amount'] = pd.to_numeric(df['Billing Amount'], errors='coerce')  # Convert to float
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    # Get filter values from user input
     min_value = float(request.args.get('min_value', 0))
     max_value = float(request.args.get('max_value', df['Billing Amount'].max()))
 
-    # Filter the dataset based on user input
     filtered_df = df[(df['Billing Amount'] >= min_value) & (df['Billing Amount'] <= max_value)]
 
-    # Create the histogram with formatted axis labels
-    fig = px.histogram(
-        filtered_df, 
-        x='Billing Amount', 
-        title="Healthcare Costs Distribution", 
-        nbins=50
-    )
-    fig.update_layout(
-        xaxis_title='Billing Amount ($)',  # Add dollar sign to axis label
-        yaxis_title='Count',
-        xaxis_tickformat='$'  # Format x-axis tick labels with a dollar sign
-    )
+    fig = px.histogram(filtered_df, x='Billing Amount', title="Healthcare Costs Distribution", nbins=50)
 
-    # Convert the Plotly figure to HTML
     graph_html = pio.to_html(fig, full_html=False)
 
     return render_template('index.html', graph_html=graph_html)
