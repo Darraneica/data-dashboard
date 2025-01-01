@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Data Dashboard</title>
+    <!-- Link to Plotly's CDN for interactive charts -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Healthcare Costs Data Visualization</h1>
+
+    <!-- Filtering form -->
+    <form method="get">
+        <label for="min_value">Min Value: </label>
+        <input type="number" id="min_value" name="min_value" value="{{ request.args.get('min_value', 0) }}" step="0.01">
+        
+        <label for="max_value">Max Value: </label>
+        <input type="number" id="max_value" name="max_value" value="{{ request.args.get('max_value', 0) }}" step="0.01">
+        
+        <button type="submit">Filter</button>
+    </form>
+
+    <!-- Display the Plotly interactive graph -->
+    <div>
+        {{ graph_html | safe }}
+    </div>
+</body>
+</html>
